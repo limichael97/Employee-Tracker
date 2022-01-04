@@ -158,80 +158,116 @@ function addRole() {
 }
 
 function addEmployee() {
-  db.viewAllEmployees().then(([rows])=>{
-    let employeeNew = rows
-    const employeeList = employeeNew.map(({id,first_name,last_name,role_id, manager_id})=>({
-      first_name: first_name,
-      last_name: last_name,
-      role_id:role_id,
-      value:id,
-      manager_id: manager_id
-    }))
-    prompt([
-      {
-        type: "input",
-        name: "first_name",
-        message: "What is the employee's first name?"
-      },
+  prompt([
+    {
+      name: "first_name",
+      message: "What is the employee's first name?"
+    },
+    {
+      name: "last_name",
+      message: "What is the employee's last name?"
+    }
+  ])
+    .then(res => {
+      let first = res.first_name;
+      let last = res.last_name;
 
-      {
-        type: "input",
-        name: "last_name",
-        message: "What is the employee's last name?"
-      },
-  
-      {
-        type: "list",
-        name: "role_id",
-        message: "What is the employee's role?",
-        choices:employeeList
-      },
-  
-      {
-        type: "list",
-        name: "manager_id",
-        message: "Who is the employee's manager?",
-        choices: employeeList
-      }
-    ]).then(res=>{
-      db.createEmployee(res).then(()=>mainQuestions())
+      db.findAllRoles()
+        .then(([rows]) => {
+          let roles = rows;
+          const roleList = roles.map(({ id, title }) => ({
+            name: title,
+            value: id
+          }));
+
+          prompt({
+            type: "list",
+            name: "roleId",
+            message: "What is the employee's role?",
+            choices: roleList
+          })
+            .then(res => {
+              let roleId = res.roleId;
+
+              db.viewAllEmployees()
+                .then(([rows]) => {
+                  let employees = rows;
+                  const managers = employees.map(({ id, first_name, last_name }) => ({
+                    name: `${first_name} ${last_name}`,
+                    value: id
+                  }));
+
+                  managers.unshift({ name: "None", value: null });
+
+                  prompt({
+                    type: "list",
+                    name: "managerId",
+                    message: "Who is the employee's manager?",
+                    choices: managers
+                  })
+                    .then(res => {
+                      let employee = {
+                        manager_id: res.managerId,
+                        role_id: roleId,
+                        first_name: first,
+                        last_name: last
+                      }
+
+                      db.createEmployee(employee);
+                    })
+                    .then(() => mainQuestions())
+                })
+            })
+        })
     })
-  })
-
 }
 
 function updateEmployeeRole() {
-  db.viewAllEmployees().then(([rows])=>{
-    let employees = rows
-    let employeesChoices = employees.map(({id,first_name,last_name, role_id, manager_id})=>({
-      first_name: first_name,
-      last_name: last_name,
-      role_id:role_id,
-      value:id,
-      manager_id: manager_id
-    }))
-    prompt([
+  db.viewAllEmployees()
+  .then(([rows]) => {
+    let employees = rows;
+    const employeeList = employees.map(({ id, first_name, last_name }) => ({
+      name: `${first_name} ${last_name}`,
+      value: id
+    }));
+
+    employeeList.unshift({ name: "None", value: null });
+    prompt(
       {
         type: "rawlist",
         name: "id",
-        message: "Which employee's role do you want to update?",
-        choices: employeesChoices
+        message: "Which employee do you want to update role for?",
+        choices: employeeList
       },
-
-      {
-        type: "rawlist",
-        name: "role_id",
-        message: "What is the employee's new role?",
-        choices: employeesChoices
-      }
-    ]).then(res=>{
+    ).then(res=>{
       let name = res.id
-      let role = res.role_id
-      db.updateEmployeeRole(name, role).then(()=>mainQuestions())
+      db.findAllRoles()
+      .then(([rows]) => {
+        let roles = rows;
+        const roleList = roles.map(({ id, title }) => ({
+          name: title,
+          value: id
+        }));
+        prompt(
+          {
+            type: "rawlist",
+            name: "role_id",
+            message: "What is the employee's new role?",
+            choices: roleList
+          }
+        )
+          .then(res => {
+            let role = res.role_id
+            db.updateEmployeeRole(name, role)
+          })
+          .then(()=>mainQuestions())
+      })
+
     })
   })
-
 }
+
+
 
 function exitApp() {
   process.exit();
