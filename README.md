@@ -22,13 +22,13 @@ This project is licensed under the MIT license.
 * [Questions](#questions)
 
 # Installation
-
+Download repository, run "npm install" on the command line
 # Usage
+Run "node server" on the command line and a list of options will appear. 
 
+See video for demonstration: https://www.youtube.com/watch?v=lk2Iqoorlyk
 # Contributing
 Michael Li
-# Tests
-Tests
 
 # Questions 
 If you have any questions about the repo, open an issue or contact me directly at thisislimichael@gmail.com. 
