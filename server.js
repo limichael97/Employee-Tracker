@@ -2,7 +2,7 @@ const db = require('./db');
 const {prompt} = require('inquirer');
 require("console.table")
 
-
+// list of prompts when user first starts server
 function mainQuestions() {
   prompt([
     {
@@ -89,6 +89,7 @@ function mainQuestions() {
   })
 }
 
+// functions that get called when user picks that option
 function viewEmployees() {
   db.viewAllEmployees().then(([rows]) =>{
     let employees = rows 
@@ -266,8 +267,6 @@ function updateEmployeeRole() {
     })
   })
 }
-
-
 
 function exitApp() {
   process.exit();
