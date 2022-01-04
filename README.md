@@ -3,6 +3,9 @@
 # Description
 Application to manage a company's employee database
 
+![image](https://user-images.githubusercontent.com/90745029/148016785-f56d934c-9235-4c49-a8d4-c42697804220.png)
+
+
 # License
 This project is licensed under the MIT license.
 
